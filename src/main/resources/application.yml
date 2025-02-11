@@ -12,6 +12,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/board-db
     username: board-master
     password: board-postgres-password
+  security:
+    user:
+      name: board-admin
+      password: board-admin-password
 #logging:
 #  level:
 #    org.hibernate.type: TRACE
