@@ -1,5 +1,6 @@
 package com.example.board.service;
 
+import com.example.board.exception.post.PostNotFoundException;
 import com.example.board.model.Post;
 import com.example.board.model.PostPatchRequestBody;
 import com.example.board.model.PostPostRequestBody;
@@ -32,7 +33,7 @@ public class PostService {
 
   public Post getPostByPostId(Long postId) {
     var postEntity = postEntityRepository.findById(postId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        .orElseThrow(() -> new PostNotFoundException(postId));
 
     return Post.from(postEntity);
   }
@@ -50,7 +51,7 @@ public class PostService {
     var postEntity = postEntityRepository
         .findById(postId)
         .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+            () -> new PostNotFoundException(postId));
     postEntity.setBody(postPatchRequestBody.body());
 
     var updatedPostEntity = postEntityRepository.save(postEntity);
@@ -61,7 +62,7 @@ public class PostService {
     var postEntity = postEntityRepository
         .findById(postId)
         .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+            () -> new PostNotFoundException(postId));
     postEntityRepository.delete(postEntity);
   }
 }
