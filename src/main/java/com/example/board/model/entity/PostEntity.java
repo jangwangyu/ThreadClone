@@ -5,16 +5,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.Objects;
-import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "post")
-@SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE postid = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
+@SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE id = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
 @SQLRestriction("deleteddatetime IS NULL")
 public class PostEntity {
   @Id // primary key
@@ -28,10 +29,10 @@ public class PostEntity {
   private ZonedDateTime createdDateTime; // 만든 시간
 
   @Column
-  private ZonedDateTime updateDateTime; // 수정 시간
+  private ZonedDateTime updatedDateTime; // 수정 시간
 
   @Column
-  private ZonedDateTime deleteDateTime; // 삭제 시간
+  private ZonedDateTime deletedDateTime; // 삭제 시간
 
 
   public PostEntity(Long id, String body, ZonedDateTime createdDateTime,
@@ -39,8 +40,8 @@ public class PostEntity {
     this.id = id;
     this.body = body;
     this.createdDateTime = createdDateTime;
-    this.updateDateTime = updateDateTime;
-    this.deleteDateTime = deleteDateTime;
+    this.updatedDateTime = updateDateTime;
+    this.deletedDateTime = deleteDateTime;
   }
 
   public PostEntity() {
@@ -71,20 +72,20 @@ public class PostEntity {
     this.createdDateTime = createdDateTime;
   }
 
-  public ZonedDateTime getUpdateDateTime() {
-    return updateDateTime;
+  public ZonedDateTime getUpdatedDateTime() {
+    return updatedDateTime;
   }
 
-  public void setUpdateDateTime(ZonedDateTime updateDateTime) {
-    this.updateDateTime = updateDateTime;
+  public void setUpdatedDateTime(ZonedDateTime updateDateTime) {
+    this.updatedDateTime = updateDateTime;
   }
 
-  public ZonedDateTime getDeleteDateTime() {
-    return deleteDateTime;
+  public ZonedDateTime getDeletedDateTime() {
+    return deletedDateTime;
   }
 
-  public void setDeleteDateTime(ZonedDateTime deleteDateTime) {
-    this.deleteDateTime = deleteDateTime;
+  public void setDeletedDateTime(ZonedDateTime deleteDateTime) {
+    this.deletedDateTime = deleteDateTime;
   }
 
   @Override
@@ -93,12 +94,25 @@ public class PostEntity {
       return false;
     PostEntity that = (PostEntity) o;
     return Objects.equals(id, that.id) && Objects.equals(body, that.body) && Objects.equals(
-        createdDateTime, that.createdDateTime) && Objects.equals(updateDateTime,
-        that.updateDateTime) && Objects.equals(deleteDateTime, that.deleteDateTime);
+        createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime,
+        that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, body, createdDateTime, updateDateTime, deleteDateTime);
+    return Objects.hash(id, body, createdDateTime, updatedDateTime, deletedDateTime);
   }
+
+  // JPA에 의해서 실제 데이터와 내부적으로 저장되기 직전, 혹은 수정되기 직전에 원하는 로직을 수행할 수 있음
+  @PrePersist
+  private void prePersist() {
+    this.createdDateTime = ZonedDateTime.now();
+    this.updatedDateTime = ZonedDateTime.now();
+  }
+
+  @PreUpdate
+  private void preUpdate() {
+    this.updatedDateTime = ZonedDateTime.now();
+  }
+
 }
