@@ -40,9 +40,9 @@ public class JwtAuhenticationFilter extends OncePerRequestFilter {
     var securityContext = SecurityContextHolder.getContext();
 
     // authorization.startsWith(BEARER_PREFIX)이 없을때 예외
-    if(ObjectUtils.isEmpty(authorization) || !authorization.startsWith(BEARER_PREFIX)) {
-      throw new JwtTokenNotFoundException();
-    }
+//    if(ObjectUtils.isEmpty(authorization) || !authorization.startsWith(BEARER_PREFIX)) {
+//      throw new JwtTokenNotFoundException();
+//    }
 
     // 인증을 받아온 적이 없고 해당 토큰이 정상적인 문자열일 때
     if(!ObjectUtils.isEmpty(authorization)

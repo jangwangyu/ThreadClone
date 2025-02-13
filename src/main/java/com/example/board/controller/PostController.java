@@ -1,11 +1,10 @@
 package com.example.board.controller;
 
-import com.example.board.model.Post;
-import com.example.board.model.PostPatchRequestBody;
-import com.example.board.model.PostPostRequestBody;
+import com.example.board.model.post.Post;
+import com.example.board.model.post.PostPatchRequestBody;
+import com.example.board.model.post.PostPostRequestBody;
 import com.example.board.service.PostService;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

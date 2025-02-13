@@ -10,7 +10,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import org.hibernate.annotations.SQLDelete;
@@ -28,10 +27,10 @@ public class UserEntity implements UserDetails {
   @GeneratedValue(strategy = GenerationType.IDENTITY) // key 생성 전략은 identity 게시물 생성마다 1증가
   private Long userId;
 
-  @Column
+  @Column(nullable = false)
   private String username;
 
-  @Column
+  @Column(nullable = false)
   private String password;
 
   @Column
@@ -166,11 +165,11 @@ public class UserEntity implements UserDetails {
     // Avatar Placeholder 서비스 (https://avatar-placeholder.iran.liara.run) 기반
     // 랜덤한 프로필 사진 설정(1 ~ 100)
     userEntity
-        .setProfile("https://avatar.iran.liara.run/public/" + new Random().nextInt(100) + ".png");
+        .setProfile("https://avatar.iran.liara.run/public/" + (new Random().nextInt(100) + 1));
 
     // 위 API가 정상적으로 동작하지 않을 경우, 이것을 사용
 //    userEntity
-//        .setProfile("https://dev-jayce.github.io/public/profile/" + new Random().nextInt(100) + ".png");
+//        .setProfile("https://dev-jayce.github.io/public/profile/" + (new Random().nextInt(100) + 1) + ".png");
 
     return userEntity;
   }

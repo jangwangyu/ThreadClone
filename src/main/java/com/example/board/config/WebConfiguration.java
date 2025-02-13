@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -41,7 +42,11 @@ public class WebConfiguration {
   SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
     http
         .cors(Customizer.withDefaults()) // cors 설정 기본값
-        .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated()) // 모든 request에서 인증처리를 한다
+        .authorizeHttpRequests((requests) -> requests
+            .requestMatchers(HttpMethod.POST, "/api/*/users")
+            .permitAll()
+            .anyRequest()
+            .authenticated()) // 모든 request에서 인증처리를 한다
         .sessionManagement(
             (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // session은 생성되지 않는다
         .csrf(CsrfConfigurer::disable) // csrf 검증은 제외
