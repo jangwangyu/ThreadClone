@@ -27,6 +27,7 @@ public class PostController {
 
   @Autowired private PostService postService;
 
+
   @GetMapping
   public ResponseEntity<List<Post>> getPosts() {
     log.info("Get /api/v1/posts");
