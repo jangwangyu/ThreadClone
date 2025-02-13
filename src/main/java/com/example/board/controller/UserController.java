@@ -1,5 +1,7 @@
 package com.example.board.controller;
 
+import com.example.board.model.user.UserAuthenticationResponse;
+import com.example.board.model.user.UserLoginRequestBody;
 import com.example.board.model.user.UserSignUpRequestBody;
 import com.example.board.model.user.User;
 import com.example.board.service.UserService;
@@ -25,5 +27,16 @@ public class UserController {
     );
     return ResponseEntity.ok(user);
     // return new ResponseEntity<>(user, HttpStatus.OK);
+  }
+
+
+  @PostMapping("/authenticate") // 사용자 인증
+  public ResponseEntity<UserAuthenticationResponse> authenticate(
+      @Valid @RequestBody UserLoginRequestBody userLoginRequestBody) {
+    var response = userService.authenticate(
+        userLoginRequestBody.username(),
+        userLoginRequestBody.password()
+    );
+    return ResponseEntity.ok(response);
   }
 }

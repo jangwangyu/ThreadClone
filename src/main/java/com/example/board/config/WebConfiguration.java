@@ -43,7 +43,7 @@ public class WebConfiguration {
     http
         .cors(Customizer.withDefaults()) // cors 설정 기본값
         .authorizeHttpRequests((requests) -> requests
-            .requestMatchers(HttpMethod.POST, "/api/*/users")
+            .requestMatchers(HttpMethod.POST, "/api/*/users", "/api/*/users/authenticate")
             .permitAll()
             .anyRequest()
             .authenticated()) // 모든 request에서 인증처리를 한다
