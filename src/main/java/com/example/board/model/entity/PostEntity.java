@@ -1,10 +1,14 @@
 package com.example.board.model.entity;
 
+import com.example.board.model.post.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -14,7 +18,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "post")
+@Table(name = "post", indexes = {@Index(name = "post_userid_idx", columnList = "userid")}) // userid에 대한 index
 @SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE id = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
 @SQLRestriction("deleteddatetime IS NULL")
 public class PostEntity {
@@ -33,6 +37,10 @@ public class PostEntity {
 
   @Column
   private ZonedDateTime deletedDateTime; // 삭제 시간
+
+  @ManyToOne
+  @JoinColumn(name = "userid")
+  private UserEntity user;
 
 
   public PostEntity(Long id, String body, ZonedDateTime createdDateTime,
@@ -88,6 +96,14 @@ public class PostEntity {
     this.deletedDateTime = deleteDateTime;
   }
 
+  public UserEntity getUser() {
+    return user;
+  }
+
+  public void setUser(UserEntity user) {
+    this.user = user;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass())
@@ -95,12 +111,21 @@ public class PostEntity {
     PostEntity that = (PostEntity) o;
     return Objects.equals(id, that.id) && Objects.equals(body, that.body) && Objects.equals(
         createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime,
-        that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime);
+        that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime)
+        && Objects.equals(user, that.user);
   }
+
+  public static PostEntity of(String body, UserEntity user) {
+    var post = new PostEntity();
+    post.setBody(body);
+    post.setUser(user);
+    return post;
+  }
+
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, body, createdDateTime, updatedDateTime, deletedDateTime);
+    return Objects.hash(id, body, createdDateTime, updatedDateTime, deletedDateTime, user);
   }
 
   // JPA에 의해서 실제 데이터와 내부적으로 저장되기 직전, 혹은 수정되기 직전에 원하는 로직을 수행할 수 있음

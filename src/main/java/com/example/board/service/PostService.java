@@ -1,6 +1,8 @@
 package com.example.board.service;
 
 import com.example.board.exception.post.PostNotFoundException;
+import com.example.board.exception.user.UserNotAllowedException;
+import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
@@ -34,30 +36,40 @@ public class PostService {
   }
 
 
-  public Post createPost(PostPostRequestBody postPostRequestBody) {
-    var postEntity = new PostEntity();
-    postEntity.setBody(postPostRequestBody.body());
-    var savedpostEntidy = postEntityRepository.save(postEntity);
-    return Post.from(savedpostEntidy);
+  public Post createPost(PostPostRequestBody postPostRequestBody, UserEntity currentUser) {
+
+    var postEntity = postEntityRepository.save(
+        PostEntity.of(postPostRequestBody.body(), currentUser)
+    );
+    return Post.from(postEntity);
   }
 
 
-  public Post updatePost(Long postId,PostPatchRequestBody postPatchRequestBody) {
+  public Post updatePost(Long postId,PostPatchRequestBody postPatchRequestBody, UserEntity currentUser) {
     var postEntity = postEntityRepository
         .findById(postId)
-        .orElseThrow(
-            () -> new PostNotFoundException(postId));
+        .orElseThrow(() -> new PostNotFoundException(postId));
+
+    if(!postEntity.getUser().equals(currentUser)) {
+      throw new UserNotAllowedException();
+    }
+
     postEntity.setBody(postPatchRequestBody.body());
 
     var updatedPostEntity = postEntityRepository.save(postEntity);
     return Post.from(updatedPostEntity);
   }
 
-  public void deletePost(Long postId) {
+  public void deletePost(Long postId, UserEntity currentUser) {
     var postEntity = postEntityRepository
         .findById(postId)
         .orElseThrow(
             () -> new PostNotFoundException(postId));
+
+    if(!postEntity.getUser().equals(currentUser)) {
+      throw new UserNotAllowedException();
+    }
+
     postEntityRepository.delete(postEntity);
   }
 }

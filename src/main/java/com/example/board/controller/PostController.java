@@ -1,5 +1,6 @@
 package com.example.board.controller;
 
+import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -43,9 +45,10 @@ public class PostController {
 
   // POST -> /posts
   @PostMapping
-  public ResponseEntity<Post> createPost(@RequestBody PostPostRequestBody postPostRequestBody) { // RequestBody 어노테이션이 동작하려면 파라미터가 없는 생성자가 필요함
+  public ResponseEntity<Post> createPost(@RequestBody PostPostRequestBody postPostRequestBody,
+      Authentication authentication) { // RequestBody 어노테이션이 동작하려면 파라미터가 없는 생성자가 필요함
     log.info("Post /api/v1/posts");
-    var post = postService.createPost(postPostRequestBody);
+    var post = postService.createPost(postPostRequestBody,(UserEntity) authentication.getPrincipal());
 
     return ResponseEntity.ok(post);
   }
@@ -53,17 +56,17 @@ public class PostController {
 
   @PatchMapping("/{postId}")
   public ResponseEntity<Post> updatePost(@PathVariable Long postId, @RequestBody
-      PostPatchRequestBody postPatchRequestBody) {
+      PostPatchRequestBody postPatchRequestBody, Authentication authentication) {
     log.info("Patch /api/v1/posts{}", postId);
-    var post = postService.updatePost(postId, postPatchRequestBody);
+    var post = postService.updatePost(postId, postPatchRequestBody, (UserEntity) authentication.getPrincipal());
 
     return ResponseEntity.ok(post);
   }
 
   @DeleteMapping("/{postId}")
-  public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+  public ResponseEntity<Void> deletePost(@PathVariable Long postId, Authentication authentication) {
     log.info("Delete /api/v1/posts{}", postId);
-    postService.deletePost(postId);
+    postService.deletePost(postId, (UserEntity) authentication.getPrincipal());
 
     return ResponseEntity.noContent().build();
   }

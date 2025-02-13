@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -18,7 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Table(name = "\"users\"")
+@Table(name = "\"users\"", indexes = {@Index(name = "user_username_idx", columnList = "username", unique = true)}) // username index 설정, 유니크 설정(중복x)
 @SQLDelete(sql = "UPDATE \"user\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE userid = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
 @SQLRestriction("deleteddatetime IS NULL")
 public class UserEntity implements UserDetails {

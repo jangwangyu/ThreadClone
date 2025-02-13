@@ -1,6 +1,7 @@
 package com.example.board.model.post;
 
 import com.example.board.model.entity.PostEntity;
+import com.example.board.model.user.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.ZonedDateTime;
 
@@ -9,6 +10,8 @@ public record Post(
     Long postId,
 
     String body,
+
+    User user,
 
     ZonedDateTime createdDateTime,
 
@@ -21,6 +24,7 @@ public record Post(
         return new Post(
             entity.getId(),
             entity.getBody(),
+            User.from(entity.getUser()), //UserRecord로 변환
             entity.getCreatedDateTime(),
             entity.getUpdatedDateTime(),
             entity.getDeletedDateTime()
