@@ -1,6 +1,5 @@
 package com.example.board.model.entity;
 
-import com.example.board.model.post.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,19 +17,19 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "post", indexes = {@Index(name = "post_userid_idx", columnList = "userid")}) // userid에 대한 index
-@SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE id = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
+@Table(
+    name = "reply",
+    indexes = {@Index(name = "reply_userid_idx", columnList = "userid"),
+              @Index(name = "reply_postid_idx", columnList = "postid")})
+@SQLDelete(sql = "UPDATE \"reply\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE replyid = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
 @SQLRestriction("deleteddatetime IS NULL")
-public class PostEntity {
+public class ReplyEntity {
   @Id // primary key
   @GeneratedValue(strategy = GenerationType.IDENTITY) // key 생성 전략은 identity 게시물 생성마다 1증가
-  private Long id;
+  private Long replyId;
 
   @Column(columnDefinition = "TEXT") // 데이터 상 TEXT로 생성
   private String body; // 게시물 본문
-
-  @Column
-  private Long repliesCount =0L;
 
   @Column
   private ZonedDateTime createdDateTime; // 만든 시간
@@ -45,26 +44,16 @@ public class PostEntity {
   @JoinColumn(name = "userid")
   private UserEntity user;
 
+  @ManyToOne
+  @JoinColumn(name = "postid")
+  private PostEntity post;
 
-  public PostEntity(Long id, String body, ZonedDateTime createdDateTime,
-      ZonedDateTime updateDateTime, ZonedDateTime deleteDateTime) {
-    this.id = id;
-    this.body = body;
-    this.createdDateTime = createdDateTime;
-    this.updatedDateTime = updateDateTime;
-    this.deletedDateTime = deleteDateTime;
+  public Long getReplyId() {
+    return replyId;
   }
 
-  public PostEntity() {
-
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
+  public void setReplyId(Long replyId) {
+    this.replyId = replyId;
   }
 
   public String getBody() {
@@ -73,14 +62,6 @@ public class PostEntity {
 
   public void setBody(String body) {
     this.body = body;
-  }
-
-  public Long getRepliesCount() {
-    return repliesCount;
-  }
-
-  public void setRepliesCount(Long repliesCount) {
-    this.repliesCount = repliesCount;
   }
 
   public ZonedDateTime getCreatedDateTime() {
@@ -115,30 +96,37 @@ public class PostEntity {
     this.user = user;
   }
 
+  public PostEntity getPost() {
+    return post;
+  }
+
+  public void setPost(PostEntity post) {
+    this.post = post;
+  }
+
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) {
+    if (o == null || getClass() != o.getClass())
       return false;
-    }
-    PostEntity that = (PostEntity) o;
-    return Objects.equals(id, that.id) && Objects.equals(body, that.body)
-        && Objects.equals(repliesCount, that.repliesCount) && Objects.equals(
-        createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime,
+    ReplyEntity that = (ReplyEntity) o;
+    return Objects.equals(replyId, that.replyId) && Objects.equals(body, that.body)
+        && Objects.equals(createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime,
         that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime)
-        && Objects.equals(user, that.user);
+        && Objects.equals(user, that.user) && Objects.equals(post, that.post);
   }
+
+  public static ReplyEntity of(String body, UserEntity user, PostEntity post) {
+    var reply = new ReplyEntity();
+    reply.setBody(body);
+    reply.setUser(user);
+    reply.setPost(post);
+    return reply;
+  }
+
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, body, repliesCount, createdDateTime, updatedDateTime, deletedDateTime,
-        user);
-  }
-
-  public static PostEntity of(String body, UserEntity user) {
-    var post = new PostEntity();
-    post.setBody(body);
-    post.setUser(user);
-    return post;
+    return Objects.hash(replyId, body, createdDateTime, updatedDateTime, deletedDateTime, user);
   }
 
   // JPA에 의해서 실제 데이터와 내부적으로 저장되기 직전, 혹은 수정되기 직전에 원하는 로직을 수행할 수 있음

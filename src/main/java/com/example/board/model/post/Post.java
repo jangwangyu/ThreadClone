@@ -11,6 +11,8 @@ public record Post(
 
     String body,
 
+    Long repliesCount,
+
     User user,
 
     ZonedDateTime createdDateTime,
@@ -20,14 +22,15 @@ public record Post(
     ZonedDateTime deletedDateTime
 
 ) {
-    public static Post from(PostEntity entity) { //postentity를 post record로 변환시켜줌
+    public static Post from(PostEntity postentity) { //postentity를 post record로 변환시켜줌
         return new Post(
-            entity.getId(),
-            entity.getBody(),
-            User.from(entity.getUser()), //UserRecord로 변환
-            entity.getCreatedDateTime(),
-            entity.getUpdatedDateTime(),
-            entity.getDeletedDateTime()
+            postentity.getId(),
+            postentity.getBody(),
+            postentity.getRepliesCount(),
+            User.from(postentity.getUser()), //UserRecord로 변환
+            postentity.getCreatedDateTime(),
+            postentity.getUpdatedDateTime(),
+            postentity.getDeletedDateTime()
         );
     }
 }
