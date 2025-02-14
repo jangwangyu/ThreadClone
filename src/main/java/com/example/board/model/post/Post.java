@@ -13,6 +13,8 @@ public record Post(
 
     Long repliesCount,
 
+    Long likeCount,
+
     User user,
 
     ZonedDateTime createdDateTime,
@@ -27,6 +29,7 @@ public record Post(
             postentity.getId(),
             postentity.getBody(),
             postentity.getRepliesCount(),
+            postentity.getLikeCount(),
             User.from(postentity.getUser()), //UserRecord로 변환
             postentity.getCreatedDateTime(),
             postentity.getUpdatedDateTime(),

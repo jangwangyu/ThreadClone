@@ -3,13 +3,16 @@ package com.example.board.service;
 import com.example.board.exception.post.PostNotFoundException;
 import com.example.board.exception.user.UserNotAllowedException;
 import com.example.board.exception.user.UserNotFoundException;
+import com.example.board.model.entity.LikeEntity;
 import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
 import com.example.board.model.entity.PostEntity;
+import com.example.board.repository.LikeEntityRepository;
 import com.example.board.repository.PostEntityRepository;
 import com.example.board.repository.UserEntityRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,9 @@ public class PostService {
 
   @Autowired
   private UserEntityRepository userEntityRepository;
+
+  @Autowired
+  private LikeEntityRepository likeEntityRepository;
 
 //  public List<Post> getPosts() {
 //    return posts;
@@ -50,12 +56,13 @@ public class PostService {
   }
 
 
-  public Post updatePost(Long postId,PostPatchRequestBody postPatchRequestBody, UserEntity currentUser) {
+  public Post updatePost(Long postId, PostPatchRequestBody postPatchRequestBody,
+      UserEntity currentUser) {
     var postEntity = postEntityRepository
         .findById(postId)
         .orElseThrow(() -> new PostNotFoundException(postId));
 
-    if(!postEntity.getUser().equals(currentUser)) {
+    if (!postEntity.getUser().equals(currentUser)) {
       throw new UserNotAllowedException();
     }
 
@@ -71,7 +78,7 @@ public class PostService {
         .orElseThrow(
             () -> new PostNotFoundException(postId));
 
-    if(!postEntity.getUser().equals(currentUser)) {
+    if (!postEntity.getUser().equals(currentUser)) {
       throw new UserNotAllowedException();
     }
 
@@ -86,5 +93,25 @@ public class PostService {
 
     var postEntities = postEntityRepository.findByUser(userEntity);
     return postEntities.stream().map(Post::from).toList();
+  }
+
+  @Transactional
+  public Post toggleLike(Long postId, UserEntity currentUser) {
+    var postEntity = postEntityRepository
+        .findById(postId)
+        .orElseThrow(
+            () -> new PostNotFoundException(postId));
+
+    var likeEntity = likeEntityRepository.findByUserAndPost(currentUser, postEntity);
+
+    if (likeEntity.isPresent()) {
+      likeEntityRepository.delete(likeEntity.get());
+      postEntity.setLikeCount(Math.max(0, postEntity.getLikeCount() -1));
+    } else {
+      likeEntityRepository.save(LikeEntity.of(currentUser, postEntity));
+      postEntity.setLikeCount(postEntity.getLikeCount() + 1);
+    }
+
+    return Post.from(postEntityRepository.save(postEntity));
   }
 }

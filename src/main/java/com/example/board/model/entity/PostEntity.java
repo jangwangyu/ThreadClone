@@ -18,10 +18,13 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "post", indexes = {@Index(name = "post_userid_idx", columnList = "userid")}) // userid에 대한 index
-@SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE id = ? ") // delete를 update로 바꿔서 soft delete를 하는 방법임
+@Table(name = "post", indexes = {@Index(name = "post_userid_idx", columnList = "userid")})
+// userid에 대한 index
+@SQLDelete(sql = "UPDATE \"post\" SET deleteddatetime = CURRENT_TIMESTAMP WHERE id = ? ")
+// delete를 update로 바꿔서 soft delete를 하는 방법임
 @SQLRestriction("deleteddatetime IS NULL")
 public class PostEntity {
+
   @Id // primary key
   @GeneratedValue(strategy = GenerationType.IDENTITY) // key 생성 전략은 identity 게시물 생성마다 1증가
   private Long id;
@@ -30,7 +33,10 @@ public class PostEntity {
   private String body; // 게시물 본문
 
   @Column
-  private Long repliesCount =0L;
+  private Long repliesCount = 0L;
+
+  @Column
+  private Long likeCount = 0L;
 
   @Column
   private ZonedDateTime createdDateTime; // 만든 시간
@@ -83,6 +89,14 @@ public class PostEntity {
     this.repliesCount = repliesCount;
   }
 
+  public Long getLikeCount() {
+    return likeCount;
+  }
+
+  public void setLikeCount(Long likeCount) {
+    this.likeCount = likeCount;
+  }
+
   public ZonedDateTime getCreatedDateTime() {
     return createdDateTime;
   }
@@ -123,15 +137,16 @@ public class PostEntity {
     PostEntity that = (PostEntity) o;
     return Objects.equals(id, that.id) && Objects.equals(body, that.body)
         && Objects.equals(repliesCount, that.repliesCount) && Objects.equals(
-        createdDateTime, that.createdDateTime) && Objects.equals(updatedDateTime,
-        that.updatedDateTime) && Objects.equals(deletedDateTime, that.deletedDateTime)
+        likeCount, that.likeCount) && Objects.equals(createdDateTime, that.createdDateTime)
+        && Objects.equals(updatedDateTime, that.updatedDateTime)
+        && Objects.equals(deletedDateTime, that.deletedDateTime)
         && Objects.equals(user, that.user);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, body, repliesCount, createdDateTime, updatedDateTime, deletedDateTime,
-        user);
+    return Objects.hash(id, body, repliesCount, likeCount, createdDateTime, updatedDateTime,
+        deletedDateTime, user);
   }
 
   public static PostEntity of(String body, UserEntity user) {
