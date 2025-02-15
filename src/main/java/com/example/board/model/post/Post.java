@@ -21,7 +21,9 @@ public record Post(
 
     ZonedDateTime updatedDateTime,
 
-    ZonedDateTime deletedDateTime
+    ZonedDateTime deletedDateTime,
+
+    Boolean isLiking
 
 ) {
     public static Post from(PostEntity postentity) { //postentity를 post record로 변환시켜줌
@@ -33,7 +35,22 @@ public record Post(
             User.from(postentity.getUser()), //UserRecord로 변환
             postentity.getCreatedDateTime(),
             postentity.getUpdatedDateTime(),
-            postentity.getDeletedDateTime()
+            postentity.getDeletedDateTime(),
+            null
+        );
+    }
+
+    public static Post from(PostEntity postentity, boolean isLiking) { //postentity를 post record로 변환시켜줌
+        return new Post(
+            postentity.getId(),
+            postentity.getBody(),
+            postentity.getRepliesCount(),
+            postentity.getLikeCount(),
+            User.from(postentity.getUser()), //UserRecord로 변환
+            postentity.getCreatedDateTime(),
+            postentity.getUpdatedDateTime(),
+            postentity.getDeletedDateTime(),
+            isLiking
         );
     }
 }

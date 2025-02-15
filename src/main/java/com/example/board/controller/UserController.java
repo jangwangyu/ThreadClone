@@ -57,8 +57,8 @@ public class UserController {
 
   // GET user(본인)이 올린 게시물's 조회
   @GetMapping("/{username}/posts")
-  public ResponseEntity<List<Post>> getpostsByUsername(@PathVariable String username) {
-    var posts = postService.getPostsByUsername(username);
+  public ResponseEntity<List<Post>> getpostsByUsername(@PathVariable String username, Authentication authentication) {
+    var posts = postService.getPostsByUsername(username, (UserEntity) authentication.getPrincipal());
     return ResponseEntity.ok(posts);
   }
 
