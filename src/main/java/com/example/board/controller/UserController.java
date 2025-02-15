@@ -14,6 +14,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,6 +62,39 @@ public class UserController {
     return ResponseEntity.ok(posts);
   }
 
+  @PostMapping("/{username}/follows")
+  public ResponseEntity<User> follow(@PathVariable String username,Authentication authentication) { // 유저 정보가 필요함
+
+    var user =  userService.follow(username,(UserEntity) authentication.getPrincipal());
+
+    return ResponseEntity.ok(user);
+  }
+
+  @DeleteMapping("/{username}/follows")
+  public ResponseEntity<User> unfollow(@PathVariable String username,Authentication authentication) { // 유저 정보가 필요함
+
+    var user =  userService.unfollow(username,(UserEntity) authentication.getPrincipal());
+
+    return ResponseEntity.ok(user);
+  }
+
+  @GetMapping("/{username}/followers")
+  public ResponseEntity<List<User>> getFollowersByUser(@PathVariable String username) { // 유저 정보가 필요함
+
+    var followers =  userService.getFollowersByUsername(username);
+
+    return ResponseEntity.ok(followers);
+  }
+
+  @GetMapping("/{username}/followings")
+  public ResponseEntity<List<User>> getFollowingsByUser(@PathVariable String username) { // 유저 정보가 필요함
+
+    var followings =  userService.getFollowingsByUsername(username);
+
+    return ResponseEntity.ok(followings);
+  }
+
+
   @PostMapping
   public ResponseEntity<User> signUp(@Valid @RequestBody UserSignUpRequestBody userSignUpReqeustBody) {
     var user = userService.signUp(
@@ -81,4 +115,6 @@ public class UserController {
     );
     return ResponseEntity.ok(response);
   }
+
+
 }

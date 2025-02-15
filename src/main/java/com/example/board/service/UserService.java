@@ -1,13 +1,19 @@
 package com.example.board.service;
 
+import com.example.board.exception.follow.FollowAlreadyExistsException;
+import com.example.board.exception.follow.FollowNotFoundException;
+import com.example.board.exception.follow.InvalidFollowException;
 import com.example.board.exception.user.UserAlreadyExistsException;
 import com.example.board.exception.user.UserNotAllowedException;
 import com.example.board.exception.user.UserNotFoundException;
+import com.example.board.model.entity.FollowEntity;
 import com.example.board.model.entity.UserEntity;
 import com.example.board.model.user.User;
 import com.example.board.model.user.UserAuthenticationResponse;
 import com.example.board.model.user.UserPatchRequestBody;
+import com.example.board.repository.FollowEntityRepository;
 import com.example.board.repository.UserEntityRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +28,10 @@ public class UserService implements UserDetailsService {
 
   @Autowired
   private UserEntityRepository userEntityRepository;
+
+  @Autowired
+  private FollowEntityRepository followEntityRepository;
+
   @Autowired
   private BCryptPasswordEncoder passwordEncoder;
 
@@ -102,5 +112,86 @@ public class UserService implements UserDetailsService {
     }
 
     return User.from(userEntityRepository.save(userEntity));
+  }
+
+  @Transactional
+  public User follow(String username, UserEntity currentUser) {
+    var following =
+        userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+    if(following.equals(currentUser)) {
+      throw new InvalidFollowException("A user connot follow themselves.");
+    }
+
+    followEntityRepository.findByFollowerAndFollowing(currentUser, following)
+        .ifPresent(
+            follow -> {
+              throw new FollowAlreadyExistsException(currentUser, following);
+            }
+        );
+
+    followEntityRepository.save(FollowEntity.of(currentUser, following));
+
+    following.setFollowersCount(following.getFollowersCount() + 1);
+    currentUser.setFollowersCount(following.getFollowingsCount() + 1);
+
+//    userEntityRepository.save(following);
+//    userEntityRepository.save(currentUser);
+    userEntityRepository.saveAll(List.of(following, currentUser)); // List로 담아서 saveall로 한번에 처리 가능
+
+    return User.from(following);
+  }
+
+  @Transactional
+  public User unfollow(String username, UserEntity currentUser) {
+    var following =
+        userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+    if(following.equals(currentUser)) {
+      throw new InvalidFollowException("A user connot unfollow themselves.");
+    }
+
+    var followEntity =
+        followEntityRepository.findByFollowerAndFollowing(currentUser, following)
+        .orElseThrow(
+            () -> new FollowNotFoundException(currentUser, following)
+        );
+
+    followEntityRepository.delete(followEntity);
+
+    following.setFollowersCount(Math.max(0,following.getFollowersCount() - 1));
+    currentUser.setFollowersCount(Math.max(0,following.getFollowingsCount() - 1));
+
+    userEntityRepository.saveAll(List.of(following, currentUser)); // List로 담아서 saveall로 한번에 처리 가능
+
+    return User.from(following);
+  }
+
+  public List<User> getFollowersByUsername(String username) {
+    var following =
+        userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+    var followEntities = followEntityRepository.findByFollowing(following);
+
+    return followEntities.stream().map(
+        follow -> User.from(follow.getFollower())).toList(); // User.from(follow.getFollower())로 변환시킨
+  }
+
+  public List<User> getFollowingsByUsername(String username) {
+    var followers =
+        userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
+
+    var followEntities = followEntityRepository.findByFollower(followers);
+
+    return followEntities.stream().map(
+        follow -> User.from(follow.getFollowing())).toList();
   }
 }

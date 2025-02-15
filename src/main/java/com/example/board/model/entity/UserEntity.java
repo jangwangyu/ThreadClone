@@ -41,6 +41,12 @@ public class UserEntity implements UserDetails {
   private String description;
 
   @Column
+  private Long followersCount = 0L;
+
+  @Column
+  private Long followingsCount = 0L;
+
+  @Column
   private ZonedDateTime createddatetime;
 
   @Column
@@ -79,6 +85,22 @@ public class UserEntity implements UserDetails {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public Long getFollowersCount() {
+    return followersCount;
+  }
+
+  public void setFollowersCount(Long followersCount) {
+    this.followersCount = followersCount;
+  }
+
+  public Long getFollowingsCount() {
+    return followingsCount;
+  }
+
+  public void setFollowingsCount(Long followingsCount) {
+    this.followingsCount = followingsCount;
   }
 
   public ZonedDateTime getCreateddatetime() {
@@ -142,20 +164,24 @@ public class UserEntity implements UserDetails {
 
   @Override
   public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass())
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     UserEntity that = (UserEntity) o;
-    return Objects.equals(userId, that.userId) && Objects.equals(username, that.username)
-        && Objects.equals(password, that.password) && Objects.equals(profile, that.profile)
-        && Objects.equals(description, that.description) && Objects.equals(createddatetime,
-        that.createddatetime) && Objects.equals(updateddatetime, that.updateddatetime)
+    return Objects.equals(userId, that.userId) && Objects.equals(username,
+        that.username) && Objects.equals(password, that.password)
+        && Objects.equals(profile, that.profile) && Objects.equals(description,
+        that.description) && Objects.equals(followersCount, that.followersCount)
+        && Objects.equals(followingsCount, that.followingsCount)
+        && Objects.equals(createddatetime, that.createddatetime)
+        && Objects.equals(updateddatetime, that.updateddatetime)
         && Objects.equals(deleteddatetime, that.deleteddatetime);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(userId, username, password, profile, description, createddatetime,
-        updateddatetime, deleteddatetime);
+    return Objects.hash(userId, username, password, profile, description, followersCount,
+        followingsCount, createddatetime, updateddatetime, deleteddatetime);
   }
 
   public static UserEntity of(String username, String password) {
