@@ -1,6 +1,5 @@
 package com.example.board.model.entity;
 
-import com.example.board.model.post.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,7 +35,7 @@ public class PostEntity {
   private Long repliesCount = 0L;
 
   @Column
-  private Long likeCount = 0L;
+  private Long likesCount = 0L;
 
   @Column
   private ZonedDateTime createdDateTime; // 만든 시간
@@ -89,12 +88,12 @@ public class PostEntity {
     this.repliesCount = repliesCount;
   }
 
-  public Long getLikeCount() {
-    return likeCount;
+  public Long getLikesCount() {
+    return likesCount;
   }
 
-  public void setLikeCount(Long likeCount) {
-    this.likeCount = likeCount;
+  public void setLikesCount(Long likesCount) {
+    this.likesCount = likesCount;
   }
 
   public ZonedDateTime getCreatedDateTime() {
@@ -137,7 +136,7 @@ public class PostEntity {
     PostEntity that = (PostEntity) o;
     return Objects.equals(id, that.id) && Objects.equals(body, that.body)
         && Objects.equals(repliesCount, that.repliesCount) && Objects.equals(
-        likeCount, that.likeCount) && Objects.equals(createdDateTime, that.createdDateTime)
+        likesCount, that.likesCount) && Objects.equals(createdDateTime, that.createdDateTime)
         && Objects.equals(updatedDateTime, that.updatedDateTime)
         && Objects.equals(deletedDateTime, that.deletedDateTime)
         && Objects.equals(user, that.user);
@@ -145,7 +144,7 @@ public class PostEntity {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, body, repliesCount, likeCount, createdDateTime, updatedDateTime,
+    return Objects.hash(id, body, repliesCount, likesCount, createdDateTime, updatedDateTime,
         deletedDateTime, user);
   }
 

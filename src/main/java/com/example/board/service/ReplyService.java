@@ -104,5 +104,13 @@ public class ReplyService {
   }
 
 
+  public List<Reply> getRepliesByUser(String username) {
+    var userEntity =
+        userEntityRepository
+            .findByUsername(username)
+            .orElseThrow(() -> new UserNotFoundException(username));
 
+    var replyEntities = replyEntityRepository.findByUser(userEntity); // 유저가 작성한 모든 댓굴
+    return replyEntities.stream().map(Reply::from).toList();
+  }
 }

@@ -13,7 +13,7 @@ public record Post(
 
     Long repliesCount,
 
-    Long likeCount,
+    Long likesCount,
 
     User user,
 
@@ -26,30 +26,30 @@ public record Post(
     Boolean isLiking
 
 ) {
-    public static Post from(PostEntity postentity) { //postentity를 post record로 변환시켜줌
+    public static Post from(PostEntity postEntity) { //postentity를 post record로 변환시켜줌
         return new Post(
-            postentity.getId(),
-            postentity.getBody(),
-            postentity.getRepliesCount(),
-            postentity.getLikeCount(),
-            User.from(postentity.getUser()), //UserRecord로 변환
-            postentity.getCreatedDateTime(),
-            postentity.getUpdatedDateTime(),
-            postentity.getDeletedDateTime(),
+            postEntity.getId(),
+            postEntity.getBody(),
+            postEntity.getRepliesCount(),
+            postEntity.getLikesCount(),
+            User.from(postEntity.getUser()), //UserRecord로 변환
+            postEntity.getCreatedDateTime(),
+            postEntity.getUpdatedDateTime(),
+            postEntity.getDeletedDateTime(),
             null
         );
     }
 
-    public static Post from(PostEntity postentity, boolean isLiking) { //postentity를 post record로 변환시켜줌
+    public static Post from(PostEntity postEntity, boolean isLiking) { //postentity를 post record로 변환시켜줌
         return new Post(
-            postentity.getId(),
-            postentity.getBody(),
-            postentity.getRepliesCount(),
-            postentity.getLikeCount(),
-            User.from(postentity.getUser()), //UserRecord로 변환
-            postentity.getCreatedDateTime(),
-            postentity.getUpdatedDateTime(),
-            postentity.getDeletedDateTime(),
+            postEntity.getId(),
+            postEntity.getBody(),
+            postEntity.getRepliesCount(),
+            postEntity.getLikesCount(),
+            User.from(postEntity.getUser()), //UserRecord로 변환
+            postEntity.getCreatedDateTime(),
+            postEntity.getUpdatedDateTime(),
+            postEntity.getDeletedDateTime(),
             isLiking
         );
     }

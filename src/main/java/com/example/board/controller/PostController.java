@@ -4,7 +4,9 @@ import com.example.board.model.entity.UserEntity;
 import com.example.board.model.post.Post;
 import com.example.board.model.post.PostPatchRequestBody;
 import com.example.board.model.post.PostPostRequestBody;
+import com.example.board.model.user.LikedUser;
 import com.example.board.service.PostService;
+import com.example.board.service.UserService;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,8 @@ public class PostController {
 
   @Autowired private PostService postService;
 
+  @Autowired private UserService userService;
+
 
   @GetMapping
   public ResponseEntity<List<Post>> getPosts(Authentication authentication) {
@@ -42,6 +46,15 @@ public class PostController {
     var Post = postService.getPostByPostId(postId, (UserEntity) authentication.getPrincipal());
 
     return ResponseEntity.ok(Post);
+  }
+
+  @GetMapping("/{postId}/liked-users")
+  public ResponseEntity<List<LikedUser>> getLikedUserByPostId(@PathVariable Long postId, Authentication authentication) {
+    var likedUsers = userService.getLikedUserByPostId(
+        postId, (UserEntity) authentication.getPrincipal()
+    );
+
+    return ResponseEntity.ok(likedUsers);
   }
 
   // POST -> /posts
